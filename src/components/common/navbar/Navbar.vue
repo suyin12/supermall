@@ -1,13 +1,13 @@
 <template>
   <div class="nav-bar">
     <div class="left">
-      <slot name="left">1</slot>
+      <slot name="left"></slot>
     </div>
     <div class="center">
-      <slot name="center">2</slot>
+      <slot name="center"></slot>
     </div>
     <div class="right">
-      <slot name="right">3</slot>
+      <slot name="right"></slot>
     </div>
   </div>
 </template>
@@ -32,7 +32,6 @@
   }
 
   .center {
-    background-color: aliceblue;
     flex: 1;
   }
 </style>
