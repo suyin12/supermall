@@ -4,27 +4,9 @@
     <home-swiper :banners="banners"/>
     <recommend-view :recommends="recommends"/>
     <feature-view/>
-    <tab-control :titles="['流行', '新款', '精选']"></tab-control>
-    <ul>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-    </ul>
+    <tab-control :titles="['流行', '新款', '精选']"
+                 @tabControlItemClick="tabControlItemClick"></tab-control>
+    <goods-list :goods="showGoods" />
   </div>
 </template>
 
@@ -37,11 +19,13 @@
   //网络请求
   import {getMultiData, getProductData} from "network/home";
   import TabControl from "../../components/content/tabControl/TabControl";
+  import GoodsList from "../../components/content/goods/GoodsList";
 
 
   export default {
     name: "Home",
     components: {
+      GoodsList,
       TabControl,
       Navbar,
       HomeSwiper,
@@ -56,14 +40,22 @@
           'pop': {page:0, list:[]},
           'new': {page:0, list:[]},
           'sell': {page:0, list:[]}
-        }
+        },
+        goodType: 'pop'
+      }
+    },
+    computed: {
+      showGoods() {
+        return this.goods[this.goodType].list
       }
     },
     created() {
       //1.请求轮播等数据
       this.__getMultiData();
       //2.请求商品数据
-      this.__getProductData('pop', 1)
+      this.__getProductData('pop')
+      this.__getProductData('new')
+      this.__getProductData('sell')
     },
     methods: {
       //网络请求
@@ -72,17 +64,31 @@
         getMultiData().then(res => {
           this.banners = res.data.banner.list
           this.recommends = res.data.recommend.list
-          console.log(this.banners)
-          // console.log(this.recommends)
         })
       },
       //商品数据
-      __getProductData(type, page) {
+      __getProductData(type) {
+        const page = this.goods[type].page + 1
         getProductData(type, page).then(res => {
-          this.goods.type = res.data.list
+          this.goods[type].list.push(...res.data.list)
+          this.goods[type].page += 1
         })
-      }
+      },
 
+      // 事件监听
+      tabControlItemClick(index) {
+        switch(index){
+          case 0:
+            this.goodType = 'pop'
+            break
+          case 1:
+            this.goodType = 'new'
+            break
+          case 2:
+            this.goodType = 'sell'
+            break
+        }
+      }
     }
   }
 </script>
