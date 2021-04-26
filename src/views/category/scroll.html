@@ -8,13 +8,13 @@
       height: 500px;
       background-color: #ff8198;
 
-      /*overflow-y: scroll;*/
+      overflow: hidden;
     }
   </style>
 </head>
 <body>
 <div class="content">
-  <ul>
+  <div><ul>
     <li>11</li>
     <li>11</li>
     <li>11</li>
@@ -71,12 +71,41 @@
     <li>44</li>
     <li>44</li>
     <li>44</li>
-  </ul>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>44</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+    <li>5</li>
+  </ul></div>
+
 </div>
 
-<script src="better-scroll.js"></script>
+<script src="core.js"></script>
 <script>
-  const bs = new BScroll(document.querySelector('.content'))
+  const bs = new BScroll(document.querySelector('.content'),{
+    probeType:3
+  })
+
+  bs.on('scroll', function(position){
+    console.log(position)
+  })
 </script>
 </body>
 </html>

@@ -1,12 +1,21 @@
 <template>
   <div id="home">
     <navbar class="home-nav"><div slot="center">购物街</div></navbar>
-    <home-swiper :banners="banners"/>
-    <recommend-view :recommends="recommends"/>
-    <feature-view/>
-    <tab-control :titles="['流行', '新款', '精选']"
-                 @tabControlItemClick="tabControlItemClick"></tab-control>
-    <goods-list :goods="showGoods" />
+    <scroll class="content"
+            ref="scroll"
+            :probe-type="3"
+            :pull-upLoad="true"
+            @pullingUp="loadMore"
+            @scroll="contentScroll">
+      <home-swiper :banners="banners"/>
+      <recommend-view :recommends="recommends"/>
+      <feature-view/>
+      <tab-control class="tab-control" :titles="['流行', '新款', '精选']"
+                   @tabControlItemClick="tabControlItemClick"></tab-control>
+      <goods-list :goods="showGoods" />
+    </scroll>
+
+    <back-top class="back-top" @click.native="backTop" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -15,12 +24,14 @@
   import HomeSwiper from "./childComps/HomeSwiper"
   import RecommendView from "./childComps/RecommendView";
   import FeatureView from "./childComps/FeatureView";
+  import Scroll from "components/common/scroll/Scroll"
+  import BackTop from "components/content/backTop/BackTop";
 
   //网络请求
   import {getMultiData, getProductData} from "network/home";
-  import TabControl from "../../components/content/tabControl/TabControl";
-  import GoodsList from "../../components/content/goods/GoodsList";
-
+  import TabControl from "components/content/tabControl/TabControl";
+  import GoodsList from "components/content/goods/GoodsList";
+  import {debounce} from "common/utils"
 
   export default {
     name: "Home",
@@ -30,7 +41,9 @@
       Navbar,
       HomeSwiper,
       FeatureView,
-      RecommendView
+      RecommendView,
+      Scroll,
+      BackTop,
     },
     data() {
       return {
@@ -41,7 +54,11 @@
           'new': {page:0, list:[]},
           'sell': {page:0, list:[]}
         },
-        goodType: 'pop'
+        goodType: 'pop',
+        isShowBackTop: false,
+        tabOffsetTop: 0,
+        isTabFixed: false,
+        saveY: 0
       }
     },
     computed: {
@@ -56,6 +73,13 @@
       this.__getProductData('pop')
       this.__getProductData('new')
       this.__getProductData('sell')
+    },
+    mounted() {
+      //图片加载完成，重新刷新一下
+      const refresh = debounce(this.$refs.scroll.refresh)
+      this.$bus.$on('imageLoad' ,() => {
+        refresh()
+      })
     },
     methods: {
       //网络请求
@@ -72,6 +96,9 @@
         getProductData(type, page).then(res => {
           this.goods[type].list.push(...res.data.list)
           this.goods[type].page += 1
+
+          //完成上拉加载更多
+          this.$refs.scroll.finishPullUp()
         })
       },
 
@@ -88,7 +115,21 @@
             this.goodType = 'sell'
             break
         }
-      }
+      },
+
+      contentScroll(position) {
+        // 1.判断BackTop是否显示
+        this.isShowBackTop = (-position.y) > 1000
+
+        // 2.决定tabControl是否吸顶(position: fixed)
+        this.isTabFixed = (-position.y) > this.tabOffsetTop
+      },
+      loadMore() {
+        this.__getProductData(this.goodType)
+      },
+      backTop() {
+        this.$refs.scroll.scrollTo(0, 0)
+      },
     }
   }
 </script>
@@ -125,7 +166,8 @@
   }
 
   .tab-control {
-    position: relative;
+    position: sticky;
+    top:44px;
     z-index: 9;
   }
 
@@ -134,4 +176,13 @@
     /*overflow: hidden;*/
     /*margin-top: 44px;*/
   /*}*/
+
+  .back-top {
+    position: fixed;
+
+    /*top: 0;*/
+    right: 20px;
+    bottom: 60px;
+    z-index: 9;
+  }
 </style>
