@@ -47,7 +47,6 @@
       if (this.pullUpLoad) {
         this.scroll.on('pullingUp', () => {
           this.$emit('pullingUp')
-          console.log('监听到滚动到底部')
         })
       }
     },

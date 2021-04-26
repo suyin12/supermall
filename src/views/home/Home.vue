@@ -1,17 +1,22 @@
 <template>
   <div id="home">
     <navbar class="home-nav"><div slot="center">购物街</div></navbar>
+    <tab-control :titles="['流行', '新款', '精选']"
+                 @tabControlItemClick="tabControlItemClick"
+                 ref="tabControl1"
+                 v-show="isTabFixed"></tab-control>
     <scroll class="content"
             ref="scroll"
             :probe-type="3"
             :pull-upLoad="true"
             @pullingUp="loadMore"
             @scroll="contentScroll">
-      <home-swiper :banners="banners"/>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad" />
       <recommend-view :recommends="recommends"/>
       <feature-view/>
-      <tab-control class="tab-control" :titles="['流行', '新款', '精选']"
-                   @tabControlItemClick="tabControlItemClick"></tab-control>
+      <tab-control :titles="['流行', '新款', '精选']"
+                   @tabControlItemClick="tabControlItemClick"
+                   ref="tabControl2"></tab-control>
       <goods-list :goods="showGoods" />
     </scroll>
 
@@ -115,13 +120,15 @@
             this.goodType = 'sell'
             break
         }
+        this.$refs.tabControl1.currentIndex = index
+        this.$refs.tabControl2.currentIndex = index
       },
 
       contentScroll(position) {
         // 1.判断BackTop是否显示
         this.isShowBackTop = (-position.y) > 1000
 
-        // 2.决定tabControl是否吸顶(position: fixed)
+        // 2.决定 tabControl 是否吸顶(position:fixed)
         this.isTabFixed = (-position.y) > this.tabOffsetTop
       },
       loadMore() {
@@ -130,6 +137,11 @@
       backTop() {
         this.$refs.scroll.scrollTo(0, 0)
       },
+      swiperImageLoad() {
+        //获取tabControl的offsetTop
+        // 所有的组件都有一个属性$el，用于获取组件中的元素
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
+      }
     }
   }
 </script>
@@ -169,6 +181,13 @@
     position: sticky;
     top:44px;
     z-index: 9;
+  }
+
+  .fixed {
+    position: fixed;
+    top: 44px;
+    right: 0;
+    left: 0
   }
 
   /*.content {*/
