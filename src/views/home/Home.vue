@@ -86,6 +86,16 @@
         refresh()
       })
     },
+    destroyed() {
+      console.log('home destroyed')
+    },
+    activated() {
+      this.$refs.scroll.scrollTo(0, this.saveY)
+      this.$refs.scroll.refresh()
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.getScrollY()
+    },
     methods: {
       //网络请求
       //轮播图，推荐数据
