@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="nav-bar">
     <navbar>
       <div slot="left" class="back" @click="back">
         <img src="~assets/img/common/back.svg" />
@@ -19,7 +19,7 @@
 <script>
     import Navbar from "components/common/navbar/Navbar";
     export default {
-        name: "DetailNavBar",
+      name: "DetailNavBar",
       components: {Navbar},
       data() {
           return {
@@ -39,6 +39,10 @@
 </script>
 
 <style scoped>
+  .nav-bar {
+    position: relative;
+    z-index: 9;
+  }
   .title {
     display: flex;
     font-size: 13px;
