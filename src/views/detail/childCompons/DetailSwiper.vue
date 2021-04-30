@@ -1,7 +1,7 @@
 <template>
   <div class="detail-swiper">
     <swiper class="swiper">
-      <swiper-item v-for="item in topImages" class="swiper-item">
+      <swiper-item v-for="item in topImages">
         <img :src="item" alt="" />
       </swiper-item>
     </swiper>
@@ -34,7 +34,7 @@
     /*overflow: hidden;*/
   }
 
-  .swiper-item img {
+  .swiper>img {
     width: 100%;
   }
 </style>
