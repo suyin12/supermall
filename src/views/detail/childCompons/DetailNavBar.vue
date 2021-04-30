@@ -41,6 +41,7 @@
 <style scoped>
   .nav-bar {
     position: relative;
+    background-color: #fff;
     z-index: 9;
   }
   .title {
