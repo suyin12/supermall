@@ -1,11 +1,12 @@
 <template>
   <div class="detail">
     <detail-nav-bar />
-    <scroll class="content">
+    <scroll class="content"
+            ref="scroll">
       <detail-swiper :top-images="topImages"/>
       <detail-base-info :goods="goodsInfo" />
       <detail-shop-info :shop="shopInfo" />
-      <detail-info :detail-info="detailInfo" />
+      <detail-info :detail-info="detailInfo"/>
     </scroll>
   </div>
 </template>
@@ -20,6 +21,7 @@
     //从服务器获取数据
     import {getDetail, Goods} from "network/detail";
     import DetailInfo from "./childCompons/DetailInfo";
+    import {debounce} from "common/utils"
 
     export default {
       name: "Detail",
@@ -60,7 +62,14 @@ console.log(res)
           //5.获取详情信息
           this.detailInfo = res.result.detailInfo
         })
-      }
+      },
+      mounted() {
+        //图片加载完成，重新刷新一下
+        const refresh = debounce(this.$refs.scroll.refresh, 300)
+        this.$bus.$on('detailImageLoad' ,() => {
+          refresh()
+        })
+      },
     }
 </script>
 
