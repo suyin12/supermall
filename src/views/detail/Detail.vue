@@ -7,6 +7,9 @@
       <detail-base-info :goods="goodsInfo" />
       <detail-shop-info :shop="shopInfo" />
       <detail-info :detail-info="detailInfo"/>
+      <detail-params-info :item-params="itemParams"/>
+      <detail-comment-info :comment-info="commentInfo" />
+      <goods-list :goods="recommend"/>
     </scroll>
   </div>
 </template>
@@ -17,15 +20,23 @@
     import DetailSwiper from "./childCompons/DetailSwiper"
     import DetailBaseInfo from "./childCompons/DetailBaseInfo"
     import DetailShopInfo from "./childCompons/DetailShopInfo";
+    import DetailParamsInfo from "./childCompons/DetailParamsInfo";
+    import DetailCommentInfo from "./childCompons/DetailCommentInfo";
+    import GoodsList from "components/content/goods/GoodsList";
 
     //从服务器获取数据
-    import {getDetail, Goods} from "network/detail";
+    import {getDetail, getRecommends, Goods} from "network/detail";
     import DetailInfo from "./childCompons/DetailInfo";
     import {debounce} from "common/utils"
+    import {itemListenerMixin} from "common/mixin";
+
 
     export default {
       name: "Detail",
       components: {
+        GoodsList,
+        DetailCommentInfo,
+        DetailParamsInfo,
         DetailInfo,
         DetailShopInfo,
         DetailBaseInfo,
@@ -33,6 +44,7 @@
         DetailSwiper,
         Scroll,
       },
+      mixins: [itemListenerMixin],
       data() {
           return {
             iid: null,
@@ -40,6 +52,9 @@
             goodsInfo: {},
             shopInfo: {},
             detailInfo: {},
+            itemParams: {},
+            commentInfo: {},
+            recommend: {},
           }
       },
       created() {
@@ -57,18 +72,32 @@
           this.goodsInfo = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
 console.log(res)
           //4.获取店铺信息
-          this.shopInfo = res.result.shopInfo
+          this.shopInfo = data.shopInfo
 
           //5.获取详情信息
-          this.detailInfo = res.result.detailInfo
+          this.detailInfo = data.detailInfo
+
+          //6.获取参数信息
+          this.itemParams = data.itemParams
+
+          //7.获取评论信息
+          if(data.rate.cRate !== 0) {
+            this.commentInfo = data.rate.list[0]
+          }
+
+        })
+
+        //3.获取推荐信息
+        getRecommends().then(res => {
+          this.recommend = res.data.list
         })
       },
       mounted() {
         //图片加载完成，重新刷新一下
-        const refresh = debounce(this.$refs.scroll.refresh, 300)
-        this.$bus.$on('detailImageLoad' ,() => {
-          refresh()
-        })
+        // const refresh = debounce(this.$refs.scroll.refresh, 300)
+        // this.$bus.$on('detailImageLoad' ,() => {
+        //   refresh()
+        // })
       },
     }
 </script>

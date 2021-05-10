@@ -10,7 +10,7 @@
       name: "GoodsList",
       props: {
         goods: {
-          type: Array,
+          type: Array | Object,
           default: []
         }
       },

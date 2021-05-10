@@ -30,8 +30,7 @@
       },
       methods: {
         detailImageLoad() {
-          this.$bus.$emit('detailImageLoad')
-          console.log('detailImageLoad')
+          this.$bus.$emit('imageLoad')
         }
       }
     }

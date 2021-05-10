@@ -37,6 +37,7 @@
   import TabControl from "components/content/tabControl/TabControl";
   import GoodsList from "components/content/goods/GoodsList";
   import {debounce} from "common/utils"
+  import {itemListenerMixin} from "common/mixin";
 
   export default {
     name: "Home",
@@ -50,6 +51,7 @@
       Scroll,
       BackTop,
     },
+    mixins: [itemListenerMixin],
     data() {
       return {
         banners: [],
@@ -63,7 +65,8 @@
         isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
-        saveY: 0
+        saveY: 0,
+        itemListener: null
       }
     },
     computed: {
@@ -81,10 +84,12 @@
     },
     mounted() {
       //图片加载完成，重新刷新一下
-      const refresh = debounce(this.$refs.scroll.refresh)
-      this.$bus.$on('imageLoad' ,() => {
-        refresh()
-      })
+      // const refresh = debounce(this.$refs.scroll.refresh)
+      //
+      // this.itemListener = () => {
+      //   refresh()
+      // }
+      // this.$bus.$on('imageLoad', this.itemListener)
     },
     destroyed() {
       console.log('home destroyed')
