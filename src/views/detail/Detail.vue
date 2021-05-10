@@ -1,15 +1,17 @@
 <template>
   <div class="detail">
-    <detail-nav-bar />
+    <detail-nav-bar @titleClick="titleClick" ref="nav"/>
     <scroll class="content"
-            ref="scroll">
+            ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll">
       <detail-swiper :top-images="topImages"/>
       <detail-base-info :goods="goodsInfo" />
       <detail-shop-info :shop="shopInfo" />
       <detail-info :detail-info="detailInfo"/>
-      <detail-params-info :item-params="itemParams"/>
-      <detail-comment-info :comment-info="commentInfo" />
-      <goods-list :goods="recommend"/>
+      <detail-params-info ref="params" :item-params="itemParams"/>
+      <detail-comment-info ref="comment" :comment-info="commentInfo" />
+      <goods-list ref="recommend" :goods="recommend"/>
     </scroll>
   </div>
 </template>
@@ -55,6 +57,8 @@
             itemParams: {},
             commentInfo: {},
             recommend: {},
+            navBarScrollY: [0, 1000, 1500, 2000],
+            currentIndex: 0
           }
       },
       created() {
@@ -85,20 +89,45 @@ console.log(res)
             this.commentInfo = data.rate.list[0]
           }
 
+          this.$nextTick(() => {
+            this.navBarScrollY = []
+
+            this.navBarScrollY.push(0)
+            this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
+            this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
+            this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+          })
+
         })
 
         //3.获取推荐信息
         getRecommends().then(res => {
           this.recommend = res.data.list
         })
+
       },
       mounted() {
-        //图片加载完成，重新刷新一下
-        // const refresh = debounce(this.$refs.scroll.refresh, 300)
-        // this.$bus.$on('detailImageLoad' ,() => {
-        //   refresh()
-        // })
+
       },
+      methods: {
+        titleClick(value) {
+          this.$refs.scroll.scrollTo(0, -this.navBarScrollY[value], 200)
+        },
+
+        contentScroll(position) {
+          const position_y = -position.y
+          // console.log(position_y)
+          const length = this.navBarScrollY.length
+          // console.log(this.navBarScrollY.length)
+          for(let i = 0; i < length; i++) {
+            if(((i !== length -1) && this.navBarScrollY[i] < position_y && position_y < this.navBarScrollY[i+1])
+            || (i === length -1 && this.navBarScrollY[i] < position_y)) {
+              this.currentIndex = i
+              this.$refs.nav.currentIndex = this.currentIndex
+            }
+          }
+        }
+      }
     }
 </script>
 
