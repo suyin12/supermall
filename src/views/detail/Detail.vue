@@ -13,6 +13,8 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo" />
       <goods-list ref="recommend" :goods="recommend"/>
     </scroll>
+
+    <back-top class="back-top" @click.native="backTop" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -30,7 +32,7 @@
     import {getDetail, getRecommends, Goods} from "network/detail";
     import DetailInfo from "./childCompons/DetailInfo";
     import {debounce} from "common/utils"
-    import {itemListenerMixin} from "common/mixin";
+    import {itemListenerMixin, backTopMixin} from "common/mixin";
 
 
     export default {
@@ -46,7 +48,7 @@
         DetailSwiper,
         Scroll,
       },
-      mixins: [itemListenerMixin],
+      mixins: [itemListenerMixin, backTopMixin],
       data() {
           return {
             iid: null,
@@ -97,8 +99,6 @@ console.log(res)
             this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
             this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
             this.navBarScrollY.push(Number.MAX_VALUE)
-
-            console.log(this.navBarScrollY)
           })
 
         })
@@ -136,6 +136,10 @@ console.log(res)
               this.$refs.nav.currentIndex = this.currentIndex
             }
           }
+
+          // 3.backTop
+          // 1.判断BackTop是否显示
+          this.listenShowBackTop(position)
         }
       }
     }
@@ -152,5 +156,14 @@ console.log(res)
   .content {
     background-color: #fff;
     height: calc(100% - 44px)
+  }
+
+  .back-top {
+    position: fixed;
+
+    /*top: 0;*/
+    right: 20px;
+    bottom: 60px;
+    z-index: 9;
   }
 </style>

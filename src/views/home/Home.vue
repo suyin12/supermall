@@ -37,7 +37,7 @@
   import TabControl from "components/content/tabControl/TabControl";
   import GoodsList from "components/content/goods/GoodsList";
   import {debounce} from "common/utils"
-  import {itemListenerMixin} from "common/mixin";
+  import {itemListenerMixin, backTopMixin} from "common/mixin";
 
   export default {
     name: "Home",
@@ -49,9 +49,8 @@
       FeatureView,
       RecommendView,
       Scroll,
-      BackTop,
     },
-    mixins: [itemListenerMixin],
+    mixins: [itemListenerMixin, backTopMixin],
     data() {
       return {
         banners: [],
@@ -141,16 +140,13 @@
 
       contentScroll(position) {
         // 1.判断BackTop是否显示
-        this.isShowBackTop = (-position.y) > 1000
+        this.listenShowBackTop(position)
 
         // 2.决定 tabControl 是否吸顶(position:fixed)
         this.isTabFixed = (-position.y) > this.tabOffsetTop
       },
       loadMore() {
         this.__getProductData(this.goodType)
-      },
-      backTop() {
-        this.$refs.scroll.scrollTo(0, 0)
       },
       swiperImageLoad() {
         //获取tabControl的offsetTop
