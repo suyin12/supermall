@@ -96,6 +96,9 @@ console.log(res)
             this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
             this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
             this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+            this.navBarScrollY.push(Number.MAX_VALUE)
+
+            console.log(this.navBarScrollY)
           })
 
         })
@@ -119,9 +122,16 @@ console.log(res)
           // console.log(position_y)
           const length = this.navBarScrollY.length
           // console.log(this.navBarScrollY.length)
-          for(let i = 0; i < length; i++) {
-            if(((i !== length -1) && this.navBarScrollY[i] < position_y && position_y < this.navBarScrollY[i+1])
-            || (i === length -1 && this.navBarScrollY[i] < position_y)) {
+          // for(let i = 0; i < length; i++) {
+          //   if((this.currentIndex !== i) && (((i !== length -1) && this.navBarScrollY[i] < position_y && position_y < this.navBarScrollY[i+1])
+          //   || (i === length -1 && this.navBarScrollY[i] < position_y))) {
+          //     this.currentIndex = i
+          //     this.$refs.nav.currentIndex = this.currentIndex
+          //   }
+          // }
+          // 另外一种空间换时间的做法(执行性能/写代码的时间)
+          for(let i = 0; i < length - 1; i++) {
+            if((this.currentIndex !== i) && (position_y >= this.navBarScrollY[i] && position_y <= this.navBarScrollY[i+1])) {
               this.currentIndex = i
               this.$refs.nav.currentIndex = this.currentIndex
             }
