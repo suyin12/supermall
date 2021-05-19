@@ -13,7 +13,7 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo" />
       <goods-list ref="recommend" :goods="recommend"/>
     </scroll>
-
+    <detail-bottom-nav @addCart="addCart" />
     <back-top class="back-top" @click.native="backTop" v-show="isShowBackTop"></back-top>
   </div>
 </template>
@@ -27,6 +27,7 @@
     import DetailParamsInfo from "./childCompons/DetailParamsInfo";
     import DetailCommentInfo from "./childCompons/DetailCommentInfo";
     import GoodsList from "components/content/goods/GoodsList";
+    import DetailBottomNav from "./childCompons/DetailBottomNav";
 
     //从服务器获取数据
     import {getDetail, getRecommends, Goods} from "network/detail";
@@ -47,6 +48,7 @@
         DetailNavBar,
         DetailSwiper,
         Scroll,
+        DetailBottomNav,
       },
       mixins: [itemListenerMixin, backTopMixin],
       data() {
@@ -60,7 +62,8 @@
             commentInfo: {},
             recommend: {},
             navBarScrollY: [0, 1000, 1500, 2000],
-            currentIndex: 0
+            currentIndex: 0,
+            getThemeTopY: null,
           }
       },
       created() {
@@ -76,7 +79,7 @@
 
           //3.创建商品的对象
           this.goodsInfo = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
-console.log(res)
+          console.log(res)
           //4.获取店铺信息
           this.shopInfo = data.shopInfo
 
@@ -91,15 +94,29 @@ console.log(res)
             this.commentInfo = data.rate.list[0]
           }
 
-          this.$nextTick(() => {
-            this.navBarScrollY = []
+          //这里获取实不正确的值，DOM还没渲染完
+          // this.navBarScrollY = []
+          //
+          // this.navBarScrollY.push(0)
+          // this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
+          // this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
+          // this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+          // this.navBarScrollY.push(Number.MAX_VALUE)
+          //
+          // console.log(this.navBarScrollY)
 
-            this.navBarScrollY.push(0)
-            this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
-            this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
-            this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
-            this.navBarScrollY.push(Number.MAX_VALUE)
-          })
+          //这里也不行，数据是渲染完成了，但是图片没有被计算在内
+          // this.$nextTick(() => {
+          //   this.navBarScrollY = []
+          //
+          //   this.navBarScrollY.push(0)
+          //   this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
+          //   this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
+          //   this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+          //   this.navBarScrollY.push(Number.MAX_VALUE)
+          //
+          //   console.log(this.navBarScrollY)
+          // })
 
         })
 
@@ -108,9 +125,45 @@ console.log(res)
           this.recommend = res.data.list
         })
 
+        // 放在 created 肯定不行，压根不能获取元素
+        // this.navBarScrollY = []
+        //
+        // this.navBarScrollY.push(0)
+        // this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
+        // this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
+        // this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+        // this.navBarScrollY.push(Number.MAX_VALUE)
+        //
+        // console.log(this.navBarScrollY)
+
       },
       mounted() {
+        //放在mounted 里面也不行，因为数据还没获取到
+        // this.navBarScrollY = []
+        //
+        // this.navBarScrollY.push(0)
+        // this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
+        // this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
+        // this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+        // this.navBarScrollY.push(Number.MAX_VALUE)
+        //
+        // console.log(this.navBarScrollY)
+        //4.getThemeTopY
+        this.getThemeTopY = debounce(() => {
+          this.navBarScrollY = []
 
+          this.navBarScrollY.push(0)
+          this.navBarScrollY.push(this.$refs.params.$el.offsetTop)
+          this.navBarScrollY.push(this.$refs.comment.$el.offsetTop)
+          this.navBarScrollY.push(this.$refs.recommend.$el.offsetTop)
+          this.navBarScrollY.push(Number.MAX_VALUE)
+
+          console.log(this.navBarScrollY)
+        }, 200)
+
+        this.$bus.$on('imageLoad', () => {
+          this.getThemeTopY()
+        })
       },
       methods: {
         titleClick(value) {
@@ -140,6 +193,21 @@ console.log(res)
           // 3.backTop
           // 1.判断BackTop是否显示
           this.listenShowBackTop(position)
+        },
+
+        //加入购物车
+        addCart() {
+          // 获取购物车需要展示的信息
+          const product = {}
+          product.image = this.topImages[0]
+          product.title = this.goodsInfo.title
+          product.desc = this.detailInfo.desc
+          product.price = this.goodsInfo.price
+          product.iid = this.iid
+
+          //将信息添加到购物车store
+          this.$store.dispatch('addToCart', product)
+
         }
       }
     }
@@ -155,7 +223,7 @@ console.log(res)
 
   .content {
     background-color: #fff;
-    height: calc(100% - 44px)
+    height: calc(100% - 44px - 49px)
   }
 
   .back-top {

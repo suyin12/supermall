@@ -10,7 +10,7 @@
             <div slot="item-icon-active"><img src="~assets/img/tabbar/category_active.svg" /></div>
             <div slot="item-text">分类</div>
         </tab-bar-item>
-        <tab-bar-item path="/shopcart">
+        <tab-bar-item path="/cart">
             <div slot="item-icon"><img src="~assets/img/tabbar/shopcart.svg" /></div>
             <div slot="item-icon-active"><img src="~assets/img/tabbar/shopcart_active.svg" /></div>
             <div slot="item-text">购物车</div>
